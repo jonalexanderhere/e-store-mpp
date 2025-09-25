@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Bell, CheckCircle, Clock, AlertCircle, ExternalLink, Github, Globe } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -34,23 +34,7 @@ export default function NotificationsPage() {
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
 
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const currentUser = await getCurrentUser()
-        setUser(currentUser)
-        if (currentUser) {
-          await fetchNotifications()
-        }
-      } catch (error) {
-        console.error('Error getting user:', error)
-      }
-    }
-
-    getUser()
-  }, [])
-
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('notifications')
@@ -70,7 +54,23 @@ export default function NotificationsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user?.id])
+
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const currentUser = await getCurrentUser()
+        setUser(currentUser)
+        if (currentUser) {
+          await fetchNotifications()
+        }
+      } catch (error) {
+        console.error('Error getting user:', error)
+      }
+    }
+
+    getUser()
+  }, [fetchNotifications])
 
   const markAsRead = async (notificationId: string) => {
     try {
@@ -181,7 +181,7 @@ export default function NotificationsPage() {
                 <h2 className="text-lg font-semibold text-gray-900">
                   Semua Notifikasi ({notifications.length})
                 </h2>
-                <Badge variant="outline">
+                <Badge variant="info">
                   {notifications.filter(n => !n.read).length} Belum dibaca
                 </Badge>
               </div>
@@ -222,7 +222,7 @@ export default function NotificationsPage() {
                         </Badge>
                       )}
                       <Button
-                        variant="ghost"
+                        variant="secondary"
                         size="sm"
                         onClick={() => markAsRead(notification.id)}
                         disabled={notification.read}
@@ -250,9 +250,9 @@ export default function NotificationsPage() {
                           <p className="text-sm text-gray-600">Status</p>
                           <Badge 
                             variant={
-                              notification.order.status === 'completed' ? 'default' :
-                              notification.order.status === 'in_progress' ? 'secondary' :
-                              'outline'
+                              notification.order.status === 'completed' ? 'success' :
+                              notification.order.status === 'in_progress' ? 'warning' :
+                              'info'
                             }
                           >
                             {notification.order.status === 'completed' ? 'Selesai' :

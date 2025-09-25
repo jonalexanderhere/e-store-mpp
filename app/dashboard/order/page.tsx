@@ -11,7 +11,6 @@ import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Select } from '@/components/ui/Select'
 import { FileText, User, Mail, Globe, MessageSquare, CheckCircle } from 'lucide-react'
 
 interface OrderForm {
@@ -217,15 +216,17 @@ export default function OrderPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Jenis Website *
                     </label>
-                    <Select
+                    <select
                       {...register('website_type', { required: 'Jenis website wajib dipilih' })}
-                      className={errors.website_type ? 'border-red-500' : ''}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        errors.website_type ? 'border-red-500' : 'border-gray-300'
+                      }`}
                     >
                       <option value="">Pilih jenis website</option>
                       {WEBSITE_TYPES.map((type) => (
                         <option key={type} value={type}>{type}</option>
                       ))}
-                    </Select>
+                    </select>
                     {errors.website_type && (
                       <p className="text-red-500 text-sm mt-1">{errors.website_type.message}</p>
                     )}
@@ -235,15 +236,17 @@ export default function OrderPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Budget Range *
                     </label>
-                    <Select
+                    <select
                       {...register('budget_range', { required: 'Budget range wajib dipilih' })}
-                      className={errors.budget_range ? 'border-red-500' : ''}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        errors.budget_range ? 'border-red-500' : 'border-gray-300'
+                      }`}
                     >
                       <option value="">Pilih range budget</option>
                       {BUDGET_RANGES.map((range) => (
                         <option key={range} value={range}>{range}</option>
                       ))}
-                    </Select>
+                    </select>
                     {errors.budget_range && (
                       <p className="text-red-500 text-sm mt-1">{errors.budget_range.message}</p>
                     )}
@@ -254,15 +257,17 @@ export default function OrderPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Timeline Pengerjaan *
                   </label>
-                  <Select
+                  <select
                     {...register('timeline', { required: 'Timeline wajib dipilih' })}
-                    className={errors.timeline ? 'border-red-500' : ''}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.timeline ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   >
                     <option value="">Pilih timeline pengerjaan</option>
                     {TIMELINES.map((timeline) => (
                       <option key={timeline} value={timeline}>{timeline}</option>
                     ))}
-                  </Select>
+                  </select>
                   {errors.timeline && (
                     <p className="text-red-500 text-sm mt-1">{errors.timeline.message}</p>
                   )}
