@@ -144,12 +144,20 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex items-center space-x-4">
                           {getStatusBadge(order.status)}
-                          <Link href={`/dashboard/orders/${order.id}`}>
-                            <Button variant="outline" size="sm">
-                              <Eye className="h-4 w-4 mr-2" />
-                              Detail
+                        <Link href={`/dashboard/orders/${order.id}`}>
+                          <Button variant="outline" size="sm">
+                            <Eye className="h-4 w-4 mr-2" />
+                            Detail
+                          </Button>
+                        </Link>
+                        {order.status === 'completed' && (
+                          <Link href={`/dashboard/projects/${order.id}`}>
+                            <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Lihat Project
                             </Button>
                           </Link>
+                        )}
                         </div>
                       </div>
                     </div>

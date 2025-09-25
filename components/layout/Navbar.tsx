@@ -81,6 +81,12 @@ export default function Navbar() {
                   Keranjang
                 </Link>
                 <Link
+                  href="/notifications"
+                  className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Notifikasi
+                </Link>
+                <Link
                   href={user.role === 'admin' ? '/admin/dashboard' : '/dashboard'}
                   className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
                 >

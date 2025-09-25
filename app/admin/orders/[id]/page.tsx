@@ -74,6 +74,44 @@ export default function AdminOrderDetailPage() {
       if (error) throw error
 
       setOrder(prev => prev ? { ...prev, status } : null)
+      
+      // Send notification to user
+      let notificationTitle = ''
+      let notificationMessage = ''
+      let notificationType = 'info'
+
+      switch (status) {
+        case 'confirmed':
+          notificationTitle = 'Pesanan Dikonfirmasi!'
+          notificationMessage = `Pesanan website ${order?.website_type} Anda telah dikonfirmasi dan akan segera diproses.`
+          notificationType = 'success'
+          break
+        case 'in_progress':
+          notificationTitle = 'Pesanan Sedang Diproses!'
+          notificationMessage = `Pesanan website ${order?.website_type} Anda sedang dalam proses pengerjaan. Tim kami akan memberikan update progress.`
+          notificationType = 'info'
+          break
+        case 'completed':
+          notificationTitle = 'Website Anda Sudah Selesai!'
+          notificationMessage = `Pesanan website ${order?.website_type} Anda telah selesai! Silakan cek detail project untuk mengakses website dan source code.`
+          notificationType = 'success'
+          break
+        default:
+          notificationTitle = 'Update Status Pesanan'
+          notificationMessage = `Status pesanan website ${order?.website_type} Anda telah diupdate.`
+      }
+
+      // Create notification
+      await supabase
+        .from('notifications')
+        .insert({
+          user_id: order?.user_id,
+          title: notificationTitle,
+          message: notificationMessage,
+          type: notificationType,
+          order_id: order?.id
+        })
+
       toast.success(`Status pesanan berhasil diubah menjadi ${status}`)
     } catch (error: any) {
       toast.error(error.message || 'Gagal mengupdate status')
