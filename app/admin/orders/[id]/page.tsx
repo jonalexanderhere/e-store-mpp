@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 export const dynamic = 'force-dynamic'
 import { useRouter } from 'next/navigation'
 import { useParams } from 'next/navigation'
+import Image from 'next/image'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { getCurrentUser, getUserRole } from '@/lib/auth'
@@ -261,9 +262,11 @@ export default function AdminOrderDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-center">
-                    <img
+                    <Image
                       src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/uploads/${order.payment_proof_url}`}
                       alt="Payment Proof"
+                      width={400}
+                      height={300}
                       className="max-w-full h-auto rounded-lg border"
                     />
                   </div>
