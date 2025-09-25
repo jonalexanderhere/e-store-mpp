@@ -43,14 +43,14 @@
 ### 👥 User Accounts
 
 **Admin Account:**
-- Email: `admin@inspiraproject.com`
-- Password: `admin123`
+- Email: `[HIDDEN]`
+- Password: `[HIDDEN]`
 - Role: `admin`
 
 **Test User Accounts:**
-- Email: `user1@example.com` / Password: `user123`
-- Email: `user2@example.com` / Password: `user123`
-- Email: `client@inspiraproject.com` / Password: `user123`
+- Email: `[HIDDEN]` / Password: `[HIDDEN]`
+- Email: `[HIDDEN]` / Password: `[HIDDEN]`
+- Email: `[HIDDEN]` / Password: `[HIDDEN]`
 
 ## 🔧 Setup Instructions
 

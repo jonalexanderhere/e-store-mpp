@@ -27,6 +27,9 @@ yarn-error.log*
 
 # local env files
 .env*.local
+
+# private credentials - DO NOT COMMIT
+ADMIN_CREDENTIALS_PRIVATE.md
 .env
 
 # vercel

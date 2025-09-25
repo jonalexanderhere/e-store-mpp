@@ -65,13 +65,13 @@ npm run dev
 6. Website Custom - Rp 8.000.000
 
 ### Admin Account
-- Email: admin@inspiraproject.com
-- Password: admin123
+- Email: [HIDDEN]
+- Password: [HIDDEN]
 - Role: admin
 
 ### Sample Users
-- Email: user1@example.com
-- Password: user123
+- Email: [HIDDEN]
+- Password: [HIDDEN]
 - Role: user
 
 ## Troubleshooting

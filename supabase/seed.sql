@@ -23,8 +23,8 @@ FOR SELECT USING (
 );
 
 -- Insert sample users for testing (these will be created through Supabase Auth)
--- Admin user: admin@inspiraproject.com / admin123
--- Test users: user1@example.com / user123, user2@example.com / user123
+-- Admin user: [HIDDEN] / [HIDDEN]
+-- Test users: [HIDDEN] / [HIDDEN], [HIDDEN] / [HIDDEN]
 
 -- Insert sample notifications (optional)
 INSERT INTO notifications (user_id, title, message) VALUES
