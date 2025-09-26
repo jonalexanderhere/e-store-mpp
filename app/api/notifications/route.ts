@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createRouteHandlerClient({ cookies })
     const { searchParams } = new URL(request.url)
     const user_id = searchParams.get('user_id')
 
@@ -31,6 +33,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createRouteHandlerClient({ cookies })
     const body = await request.json()
     const { user_id, title, message, type, order_id } = body
 
@@ -62,6 +65,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    const supabase = createRouteHandlerClient({ cookies })
     const body = await request.json()
     const { notification_id, read } = body
 

@@ -37,6 +37,8 @@ CREATE TABLE IF NOT EXISTS notifications (
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   message TEXT NOT NULL,
+  type TEXT DEFAULT 'info',
+  order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
   read BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
