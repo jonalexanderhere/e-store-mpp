@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { MongoClient } from 'mongodb'
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://Vercel-Admin-atlas-lightBlue-book:n6qGV4qMOtt3NI9U@atlas-lightblue-book.mfbxilu.mongodb.net/?retryWrites=true&w=majority";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://Vercel-Admin-atlas-lightBlue-book:n6qGV4qMOtt3NI9U@atlas-lightblue-book.mfbxilu.mongodb.net/?retryWrites=true&w=majority&ssl=true&authSource=admin";
 
 export async function GET(request: NextRequest) {
   let client;
@@ -11,7 +11,20 @@ export async function GET(request: NextRequest) {
     console.log('Environment MONGODB_URI:', process.env.MONGODB_URI ? 'Set' : 'Not set')
     console.log('Using URI:', MONGODB_URI ? 'Available' : 'Not available')
     
-    client = new MongoClient(MONGODB_URI);
+    const options = {
+      ssl: true,
+      sslValidate: true,
+      authSource: 'admin',
+      retryWrites: true,
+      w: 'majority',
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
+      socketTimeoutMS: 10000,
+      maxPoolSize: 10,
+      minPoolSize: 1
+    };
+    
+    client = new MongoClient(MONGODB_URI, options);
     await client.connect();
     
     const db = client.db('website-service');
