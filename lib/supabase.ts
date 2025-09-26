@@ -1,13 +1,24 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Avoid throwing at import time to prevent build-time failures on environments
+// where env vars are not yet configured (e.g., Vercel preview). We will create
+// the client only if both vars exist. Otherwise, export a noop proxy that throws
+// with a clear message when actually used at runtime.
+export const supabase = (() => {
+  if (supabaseUrl && supabaseAnonKey) {
+    return createClient(supabaseUrl, supabaseAnonKey)
+  }
+  const handler = {
+    get() {
+      throw new Error('Supabase client is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.')
+    }
+  }
+  // Proxy keeps module import safe during build; using the object will throw
+  return new Proxy({}, handler) as any
+})()
 
 // Database types
 export interface User {

@@ -46,10 +46,11 @@ export default function AdminDashboardPage() {
         setOrders(data || [])
 
         // Calculate stats
-        const total = data?.length || 0
-        const pending = data?.filter(o => o.status === 'pending').length || 0
-        const confirmed = data?.filter(o => o.status === 'confirmed' || o.status === 'in_progress').length || 0
-        const completed = data?.filter(o => o.status === 'completed').length || 0
+        const list: Order[] = (data as Order[]) || []
+        const total = list.length
+        const pending = list.filter((o: Order) => o.status === 'pending').length
+        const confirmed = list.filter((o: Order) => o.status === 'confirmed' || o.status === 'in_progress').length
+        const completed = list.filter((o: Order) => o.status === 'completed').length
 
         setStats({ total, pending, confirmed, completed })
       } catch (error) {
