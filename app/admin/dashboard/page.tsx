@@ -204,16 +204,16 @@ export default function AdminDashboardPage() {
               ) : (
                 <div className="space-y-3">
                   {orders.filter(o => o.status === 'pending').map((order) => (
-                    <div key={order.id} className="border rounded-lg p-3">
+                    <div key={order._id} className="border rounded-lg p-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium text-gray-900">{order.website_type}</p>
-                          <p className="text-xs text-gray-500">{order.customer_name} • {order.customer_email}</p>
+                          <p className="font-medium text-gray-900">{order.websiteType}</p>
+                          <p className="text-xs text-gray-500">{order.customerName} • {order.customerEmail}</p>
                         </div>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => router.push(`/admin/orders/${order.id}`)}
+                          onClick={() => router.push(`/admin/orders/${order._id}`)}
                         >
                           Kelola
                         </Button>
@@ -237,16 +237,16 @@ export default function AdminDashboardPage() {
               ) : (
                 <div className="space-y-3">
                   {orders.filter(o => o.status === 'confirmed' || o.status === 'in_progress').map((order) => (
-                    <div key={order.id} className="border rounded-lg p-3">
+                    <div key={order._id} className="border rounded-lg p-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium text-gray-900">{order.website_type}</p>
-                          <p className="text-xs text-gray-500">{order.customer_name} • {order.customer_email}</p>
+                          <p className="font-medium text-gray-900">{order.websiteType}</p>
+                          <p className="text-xs text-gray-500">{order.customerName} • {order.customerEmail}</p>
                         </div>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => router.push(`/admin/orders/${order.id}`)}
+                          onClick={() => router.push(`/admin/orders/${order._id}`)}
                         >
                           Kelola
                         </Button>
@@ -270,16 +270,16 @@ export default function AdminDashboardPage() {
               ) : (
                 <div className="space-y-3">
                   {orders.filter(o => o.status === 'completed').map((order) => (
-                    <div key={order.id} className="border rounded-lg p-3">
+                    <div key={order._id} className="border rounded-lg p-3">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium text-gray-900">{order.website_type}</p>
-                          <p className="text-xs text-gray-500">{order.customer_name} • {order.customer_email}</p>
+                          <p className="font-medium text-gray-900">{order.websiteType}</p>
+                          <p className="text-xs text-gray-500">{order.customerName} • {order.customerEmail}</p>
                         </div>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => router.push(`/admin/orders/${order.id}`)}
+                          onClick={() => router.push(`/admin/orders/${order._id}`)}
                         >
                           Kelola
                         </Button>

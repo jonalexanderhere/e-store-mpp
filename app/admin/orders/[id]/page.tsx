@@ -14,6 +14,23 @@ import { Input } from '@/components/ui/Input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 
+interface Order {
+  _id: string
+  userId: string
+  customerName: string
+  customerEmail: string
+  websiteType: string
+  requirements: string
+  status: 'pending' | 'confirmed' | 'in_progress' | 'completed'
+  paymentProofUrl?: string
+  repoUrl?: string
+  demoUrl?: string
+  fileStructure?: string
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}
+
 interface ProjectDetailsForm {
   repo_url: string
   demo_url: string
