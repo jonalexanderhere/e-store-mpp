@@ -11,6 +11,22 @@ import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 
+interface Order {
+  _id: string
+  userId: string
+  customerName: string
+  customerEmail: string
+  websiteType: string
+  requirements: string
+  status: 'pending' | 'confirmed' | 'in_progress' | 'completed'
+  paymentProofUrl?: string
+  repoUrl?: string
+  demoUrl?: string
+  fileStructure?: string
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}
 
 export default function AdminDashboardPage() {
   const [user, setUser] = useState<any>(null)
@@ -36,14 +52,15 @@ export default function AdminDashboardPage() {
         }
         setUser(currentUser)
 
-        // Fetch all orders
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false })
-
-        if (error) throw error
-        setOrders(data || [])
+        // Fetch all orders from MongoDB
+        const response = await fetch('/api/orders')
+        const data = await response.json()
+        
+        if (data.success) {
+          setOrders(data.orders || [])
+        } else {
+          console.error('Error fetching orders:', data.error)
+        }
 
         // Calculate stats
         const list: Order[] = (data as Order[]) || []
