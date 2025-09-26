@@ -59,15 +59,16 @@ export default function AdminOrderDetailPage() {
         }
         setUser(currentUser)
 
-        // Fetch order
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('id', params.id)
-          .single()
-
-        if (error) throw error
-        setOrder(data)
+        // Fetch order from MongoDB
+        const response = await fetch(`/api/orders/${params.id}`)
+        const data = await response.json()
+        
+        if (data.order) {
+          setOrder(data.order)
+        } else {
+          console.error('Error fetching order:', data.error)
+          router.push('/admin/dashboard')
+        }
       } catch (error) {
         console.error('Error fetching data:', error)
         router.push('/admin/dashboard')
@@ -82,12 +83,14 @@ export default function AdminOrderDetailPage() {
   const updateOrderStatus = async (status: 'pending' | 'confirmed' | 'in_progress' | 'completed') => {
     setUpdating(true)
     try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status })
-        .eq('id', order?.id)
+      const response = await fetch(`/api/orders/${order?._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      })
 
-      if (error) throw error
+      const data = await response.json()
+      if (!data.order) throw new Error(data.error)
 
       setOrder(prev => prev ? { ...prev, status } : null)
       
@@ -117,16 +120,18 @@ export default function AdminOrderDetailPage() {
           notificationMessage = `Status pesanan website ${order?.website_type} Anda telah diupdate.`
       }
 
-      // Create notification
-      await supabase
-        .from('notifications')
-        .insert({
-          user_id: order?.user_id,
+      // Create notification via API
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: order?.userId,
           title: notificationTitle,
           message: notificationMessage,
           type: notificationType,
-          order_id: order?.id
+          orderId: order?._id
         })
+      })
 
       toast.success(`Status pesanan berhasil diubah menjadi ${status}`)
     } catch (error: any) {
@@ -139,17 +144,19 @@ export default function AdminOrderDetailPage() {
   const onSubmit = async (data: ProjectDetailsForm) => {
     setUpdating(true)
     try {
-      const { error } = await supabase
-        .from('orders')
-        .update({
-          repo_url: data.repo_url,
-          demo_url: data.demo_url,
-          file_structure: data.file_structure,
+      const response = await fetch(`/api/orders/${order?._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          repoUrl: data.repo_url,
+          demoUrl: data.demo_url,
+          fileStructure: data.file_structure,
           notes: data.notes
         })
-        .eq('id', order?.id)
+      })
 
-      if (error) throw error
+      const result = await response.json()
+      if (!result.order) throw new Error(result.error)
 
       setOrder(prev => prev ? {
         ...prev,
@@ -256,7 +263,7 @@ export default function AdminOrderDetailPage() {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Jenis Website</label>
-                  <p className="text-gray-900">{order.website_type}</p>
+                  <p className="text-gray-900">{order.websiteType}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Kebutuhan</label>
@@ -270,7 +277,7 @@ export default function AdminOrderDetailPage() {
             </Card>
 
             {/* Payment Proof */}
-            {order.payment_proof_url && (
+            {order.paymentProofUrl && (
               <Card>
                 <CardHeader>
                   <CardTitle>Bukti Pembayaran</CardTitle>
@@ -278,7 +285,7 @@ export default function AdminOrderDetailPage() {
                 <CardContent>
                   <div className="text-center">
                     <Image
-                      src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/uploads/${order.payment_proof_url}`}
+                      src={order.paymentProofUrl || '/placeholder-image.jpg'}
                       alt="Payment Proof"
                       width={400}
                       height={300}
