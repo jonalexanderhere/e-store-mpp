@@ -1,13 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import connectDB from '@/lib/mongodb-simple'
-import { Product } from '@/lib/mongodb-models'
+import { MongoClient } from 'mongodb'
+
+const MONGODB_URI = "mongodb+srv://Vercel-Admin-atlas-lightBlue-book:n6qGV4qMOtt3NI9U@atlas-lightblue-book.mfbxilu.mongodb.net/?retryWrites=true&w=majority";
 
 export async function GET(request: NextRequest) {
+  let client;
+  
   try {
-    await connectDB()
+    console.log('🔍 Fetching products from MongoDB...')
+    
+    client = new MongoClient(MONGODB_URI);
+    await client.connect();
+    
+    const db = client.db('website-service');
     
     // Fetch products from MongoDB
-    const products = await Product.find({ isActive: true }).sort({ createdAt: -1 })
+    const products = await db.collection('products').find({ isActive: true }).sort({ createdAt: -1 }).toArray();
+    
+    console.log(`✅ Found ${products.length} products`);
     
     return NextResponse.json({ 
       success: true, 
@@ -20,6 +30,10 @@ export async function GET(request: NextRequest) {
       success: false, 
       error: error.message 
     }, { status: 500 })
+  } finally {
+    if (client) {
+      await client.close();
+    }
   }
 }
 
