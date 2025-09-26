@@ -172,57 +172,107 @@ export default function AdminDashboardPage() {
           </Card>
         </div>
 
-        {/* Orders List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Semua Pesanan</CardTitle>
-            <CardDescription>
-              Daftar semua pesanan yang masuk ke sistem
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {orders.length === 0 ? (
-              <div className="text-center py-8">
-                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Belum ada pesanan</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {orders.map((order) => (
-                  <div key={order.id} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        {getStatusIcon(order.status)}
+        {/* Orders by Status */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Pending */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Menunggu Verifikasi</CardTitle>
+              <CardDescription>Butuh cek pembayaran</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {orders.filter(o => o.status === 'pending').length === 0 ? (
+                <p className="text-sm text-gray-500">Tidak ada pesanan</p>
+              ) : (
+                <div className="space-y-3">
+                  {orders.filter(o => o.status === 'pending').map((order) => (
+                    <div key={order.id} className="border rounded-lg p-3">
+                      <div className="flex items-center justify-between">
                         <div>
-                          <h3 className="font-medium text-gray-900">
-                            {order.website_type}
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            {order.customer_name} • {order.customer_email}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Dibuat: {new Date(order.created_at).toLocaleDateString('id-ID')}
-                          </p>
+                          <p className="font-medium text-gray-900">{order.website_type}</p>
+                          <p className="text-xs text-gray-500">{order.customer_name} • {order.customer_email}</p>
                         </div>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        {getStatusBadge(order.status)}
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => router.push(`/admin/orders/${order.id}`)}
                         >
-                          <Eye className="h-4 w-4 mr-2" />
                           Kelola
                         </Button>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* In Progress (confirmed + in_progress) */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Sedang Diproses</CardTitle>
+              <CardDescription>Pesanan yang aktif</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {orders.filter(o => o.status === 'confirmed' || o.status === 'in_progress').length === 0 ? (
+                <p className="text-sm text-gray-500">Tidak ada pesanan</p>
+              ) : (
+                <div className="space-y-3">
+                  {orders.filter(o => o.status === 'confirmed' || o.status === 'in_progress').map((order) => (
+                    <div key={order.id} className="border rounded-lg p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-gray-900">{order.website_type}</p>
+                          <p className="text-xs text-gray-500">{order.customer_name} • {order.customer_email}</p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => router.push(`/admin/orders/${order.id}`)}
+                        >
+                          Kelola
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Completed */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Selesai</CardTitle>
+              <CardDescription>Pesanan yang sudah beres</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {orders.filter(o => o.status === 'completed').length === 0 ? (
+                <p className="text-sm text-gray-500">Tidak ada pesanan</p>
+              ) : (
+                <div className="space-y-3">
+                  {orders.filter(o => o.status === 'completed').map((order) => (
+                    <div key={order.id} className="border rounded-lg p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-gray-900">{order.website_type}</p>
+                          <p className="text-xs text-gray-500">{order.customer_name} • {order.customer_email}</p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => router.push(`/admin/orders/${order.id}`)}
+                        >
+                          Kelola
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

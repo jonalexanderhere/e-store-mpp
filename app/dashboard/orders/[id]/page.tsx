@@ -18,6 +18,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
+  const waNumber = '6282181183590'
   const router = useRouter()
   const params = useParams()
 
@@ -220,40 +221,49 @@ export default function OrderDetailPage() {
           {order.status === 'pending' && (
             <Card>
               <CardHeader>
-                <CardTitle>Upload Bukti Pembayaran</CardTitle>
+                <CardTitle>Konfirmasi Pembayaran</CardTitle>
                 <CardDescription>
-                  Upload bukti transfer untuk melanjutkan proses pesanan
+                  Kirim bukti transfer via WhatsApp atau upload di sini
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {order.payment_proof_url ? (
-                  <div className="text-center py-4">
-                    <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-2" />
-                    <p className="text-green-600 font-medium">Bukti pembayaran telah diupload</p>
-                    <p className="text-sm text-gray-500">Menunggu konfirmasi admin</p>
+                <div className="space-y-4">
+                  <div className="rounded-md bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800">
+                    Setelah mengirim bukti, status akan menjadi <span className="font-semibold">menunggu verifikasi</span>.
                   </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <input
-                      type="file"
-                      id="payment-proof"
-                      accept="image/*,.pdf"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                    <label htmlFor="payment-proof">
-                      <Button
-                        variant="outline"
-                        loading={uploading}
-                        disabled={uploading}
-                        className="cursor-pointer"
-                      >
-                        <Upload className="h-4 w-4 mr-2" />
-                        {uploading ? 'Mengupload...' : 'Upload Bukti Pembayaran'}
-                      </Button>
-                    </label>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <Button as-child variant="outline">
+                      <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer">Kirim Bukti via WhatsApp</a>
+                    </Button>
+                    <div>
+                      <input
+                        type="file"
+                        id="payment-proof"
+                        accept="image/*,.pdf"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                      />
+                      <label htmlFor="payment-proof">
+                        <Button
+                          variant="outline"
+                          loading={uploading}
+                          disabled={uploading}
+                          className="cursor-pointer w-full"
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          {uploading ? 'Mengupload...' : 'Upload Bukti'}
+                        </Button>
+                      </label>
+                    </div>
                   </div>
-                )}
+                  {order.payment_proof_url && (
+                    <div className="text-center py-2">
+                      <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-2" />
+                      <p className="text-green-600 font-medium">Bukti pembayaran telah diupload</p>
+                      <p className="text-sm text-gray-500">Menunggu konfirmasi admin</p>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           )}
@@ -319,6 +329,34 @@ export default function OrderDetailPage() {
                   </CardHeader>
                   <CardContent>
                     {renderFileStructure(order.file_structure)}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Required Format Section */}
+              {order.status === 'confirmed' && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Data yang Wajib Diisi</CardTitle>
+                    <CardDescription>
+                      Lengkapi format berikut agar proses pengerjaan dapat dimulai
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-gray-50 rounded-md p-4 text-sm text-gray-800">
+                      <p className="font-medium mb-2">Silakan kirim data berikut ke WhatsApp 0821-8118-3590:</p>
+                      <pre className="whitespace-pre-wrap">
+Nama Bisnis/Instansi:
+Nama Domain (jika ada):
+Logo (jika ada):
+Warna Utama yang Diinginkan:
+Menu/Pages yang Dibutuhkan:
+Konten Singkat per Halaman:
+Kontak/Alamat/Email:
+Referensi Desain (opsional):
+Catatan Tambahan:
+                      </pre>
+                    </div>
                   </CardContent>
                 </Card>
               )}

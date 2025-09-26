@@ -29,7 +29,7 @@ export default function CheckoutPage() {
   const [user, setUser] = useState<any>(null)
   const [paymentFile, setPaymentFile] = useState<File | null>(null)
   const router = useRouter()
-  const { register, handleSubmit, formState: { errors } } = useForm<CheckoutForm>()
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<CheckoutForm>()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,11 +68,6 @@ export default function CheckoutPage() {
   }, [router])
 
   const onSubmit = async (data: CheckoutForm) => {
-    if (!paymentFile) {
-      toast.error('Silakan upload bukti pembayaran')
-      return
-    }
-
     setProcessing(true)
     try {
       // Calculate total
@@ -82,16 +77,19 @@ export default function CheckoutPage() {
       const tax = subtotal * 0.1
       const total = subtotal + tax
 
-      // Upload payment proof
-      const fileExt = paymentFile.name.split('.').pop()
-      const fileName = `payment-${Date.now()}.${fileExt}`
-      const filePath = `payments/${fileName}`
+      // Upload payment proof (optional)
+      let filePath: string | null = null
+      if (paymentFile) {
+        const fileExt = paymentFile.name.split('.').pop()
+        const fileName = `payment-${Date.now()}.${fileExt}`
+        filePath = `payments/${fileName}`
 
-      const { error: uploadError } = await supabase.storage
-        .from('uploads')
-        .upload(filePath, paymentFile)
+        const { error: uploadError } = await supabase.storage
+          .from('uploads')
+          .upload(filePath, paymentFile)
 
-      if (uploadError) throw uploadError
+        if (uploadError) throw uploadError
+      }
 
       // Create transaction
       const { data: transaction, error: transactionError } = await supabase
@@ -130,7 +128,7 @@ export default function CheckoutPage() {
 
       if (cartError) throw cartError
 
-      toast.success('Pesanan berhasil dibuat! Silakan tunggu konfirmasi admin.')
+      toast.success('Pesanan berhasil dibuat! Silakan kirim bukti via WhatsApp dan tunggu verifikasi admin.')
       router.push('/dashboard')
     } catch (error: any) {
       toast.error(error.message || 'Gagal membuat pesanan')
@@ -154,6 +152,26 @@ export default function CheckoutPage() {
     const tax = subtotal * 0.1
     return subtotal + tax
   }
+
+  // WhatsApp helper
+  const paymentMethod = watch('payment_method') || ''
+  const fullName = watch('full_name') || ''
+  const email = watch('email') || ''
+  const phone = watch('phone') || ''
+  const totalPrice = getTotalPrice()
+  const formattedTotal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalPrice)
+  const waNumber = '6282181183590'
+  const waText = encodeURIComponent(
+    `Halo Admin, saya ingin konfirmasi pembayaran.
+Nama: ${fullName}
+Email: ${email}
+Nomor: ${phone}
+Metode: ${paymentMethod || '-'}
+Total: ${formattedTotal}
+
+Saya lampirkan bukti transfer (foto/screenshot). Terima kasih.`
+  )
+  const waLink = `https://wa.me/${waNumber}?text=${waText}`
 
   if (loading) {
     return (
@@ -259,27 +277,33 @@ export default function CheckoutPage() {
                   <label className="flex items-center space-x-3">
                     <input
                       type="radio"
-                      value="bank_transfer"
+                      value="gopay"
                       {...register('payment_method', {
                         required: 'Pilih metode pembayaran'
                       })}
                       className="text-primary-600 focus:ring-primary-500"
                     />
-                    <span className="text-sm font-medium text-gray-700">
-                      Transfer Bank
-                    </span>
+                    <span className="text-sm font-medium text-gray-700">GoPay</span>
                   </label>
-                  
+
                   <label className="flex items-center space-x-3">
                     <input
                       type="radio"
-                      value="e_wallet"
+                      value="dana"
                       {...register('payment_method')}
                       className="text-primary-600 focus:ring-primary-500"
                     />
-                    <span className="text-sm font-medium text-gray-700">
-                      E-Wallet (DANA, OVO, GoPay)
-                    </span>
+                    <span className="text-sm font-medium text-gray-700">DANA</span>
+                  </label>
+
+                  <label className="flex items-center space-x-3">
+                    <input
+                      type="radio"
+                      value="bank_transfer"
+                      {...register('payment_method')}
+                      className="text-primary-600 focus:ring-primary-500"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Transfer Bank</span>
                   </label>
                 </div>
                 {errors.payment_method && (
@@ -292,7 +316,7 @@ export default function CheckoutPage() {
               <CardHeader>
                 <CardTitle>Bukti Pembayaran</CardTitle>
                 <CardDescription>
-                  Upload bukti pembayaran untuk verifikasi
+                  Opsional: upload bukti pembayaran di sini atau kirim via WhatsApp
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -350,12 +374,36 @@ export default function CheckoutPage() {
               </CardContent>
             </Card>
 
+            <Card>
+              <CardHeader>
+                <CardTitle>Instruksi Pembayaran & Konfirmasi</CardTitle>
+                <CardDescription>
+                  Kirim bukti transaksi ke WhatsApp untuk verifikasi
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {(paymentMethod === 'gopay' || paymentMethod === 'dana') && (
+                  <div className="rounded-md border p-3">
+                    <p className="text-sm text-gray-600">Nomor E-Wallet:</p>
+                    <p className="text-lg font-semibold">0821 8118 3590</p>
+                    <p className="text-xs text-gray-500 mt-1">Atas nama: Admin</p>
+                  </div>
+                )}
+                <div className="rounded-md bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800">
+                  Setelah pembayaran, kirim bukti transaksi ke WhatsApp <span className="font-semibold">0821-8118-3590</span>. Pesanan Anda akan berstatus <span className="font-semibold">menunggu verifikasi</span> hingga dikonfirmasi admin.
+                </div>
+                <Button as-child className="w-full">
+                  <a href={waLink} target="_blank" rel="noopener noreferrer">Kirim Bukti via WhatsApp</a>
+                </Button>
+              </CardContent>
+            </Card>
+
             <Button
               type="submit"
               className="w-full"
               size="lg"
               loading={processing}
-              disabled={processing || !paymentFile}
+              disabled={processing}
             >
               <CreditCard className="h-5 w-5 mr-2" />
               {processing ? 'Memproses...' : 'Buat Pesanan'}
