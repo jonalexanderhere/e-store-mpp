@@ -12,15 +12,15 @@ import { Badge } from '@/components/ui/Badge'
 import toast from 'react-hot-toast'
 
 interface Product {
-  id: string
+  _id: string
   name: string
   description: string
   price: number
   category: string
   features: string[]
-  is_active: boolean
-  created_at: string
-  updated_at: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 export default function ProductsPage() {
@@ -144,7 +144,7 @@ export default function ProductsPage() {
             </div>
           ) : (
             products.map((product) => (
-            <Card key={product.id} className="hover:shadow-lg transition-shadow">
+            <Card key={product._id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <Badge variant="info">{product.category}</Badge>
@@ -177,7 +177,7 @@ export default function ProductsPage() {
                   </div>
 
                   <Button
-                    onClick={() => addToCart(product.id)}
+                    onClick={() => addToCart(product._id)}
                     className="w-full"
                     disabled={!user}
                   >
