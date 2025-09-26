@@ -26,3 +26,42 @@ export async function GET(request: NextRequest) {
     }, { status: 500 })
   }
 }
+
+export async function POST(request: NextRequest) {
+  try {
+    console.log('🔍 Creating product in MongoDB...')
+    
+    const body = await request.json()
+    const { name, description, price, category, features, isActive } = body
+    
+    const client = await clientPromise
+    const db = client.db('website-service')
+    
+    const product = {
+      name,
+      description,
+      price,
+      category,
+      features,
+      isActive: isActive ?? true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+    
+    const result = await db.collection('products').insertOne(product)
+    
+    console.log(`✅ Product created with ID: ${result.insertedId}`)
+    
+    return NextResponse.json({ 
+      success: true, 
+      product: { ...product, _id: result.insertedId },
+      message: 'Product created successfully'
+    })
+  } catch (error: any) {
+    console.error('MongoDB product creation error:', error)
+    return NextResponse.json({ 
+      success: false, 
+      error: error.message 
+    }, { status: 500 })
+  }
+}

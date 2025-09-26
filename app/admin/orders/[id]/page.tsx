@@ -102,22 +102,22 @@ export default function AdminOrderDetailPage() {
       switch (status) {
         case 'confirmed':
           notificationTitle = 'Pesanan Dikonfirmasi!'
-          notificationMessage = `Pesanan website ${order?.website_type} Anda telah dikonfirmasi dan akan segera diproses.`
+          notificationMessage = `Pesanan website ${order?.websiteType} Anda telah dikonfirmasi dan akan segera diproses.`
           notificationType = 'success'
           break
         case 'in_progress':
           notificationTitle = 'Pesanan Sedang Diproses!'
-          notificationMessage = `Pesanan website ${order?.website_type} Anda sedang dalam proses pengerjaan. Tim kami akan memberikan update progress.`
+          notificationMessage = `Pesanan website ${order?.websiteType} Anda sedang dalam proses pengerjaan. Tim kami akan memberikan update progress.`
           notificationType = 'info'
           break
         case 'completed':
           notificationTitle = 'Website Anda Sudah Selesai!'
-          notificationMessage = `Pesanan website ${order?.website_type} Anda telah selesai! Silakan cek detail project untuk mengakses website dan source code.`
+          notificationMessage = `Pesanan website ${order?.websiteType} Anda telah selesai! Silakan cek detail project untuk mengakses website dan source code.`
           notificationType = 'success'
           break
         default:
           notificationTitle = 'Update Status Pesanan'
-          notificationMessage = `Status pesanan website ${order?.website_type} Anda telah diupdate.`
+          notificationMessage = `Status pesanan website ${order?.websiteType} Anda telah diupdate.`
       }
 
       // Create notification via API
@@ -255,11 +255,11 @@ export default function AdminOrderDetailPage() {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Nama</label>
-                  <p className="text-gray-900">{order.customer_name}</p>
+                  <p className="text-gray-900">{order.customerName}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Email</label>
-                  <p className="text-gray-900">{order.customer_email}</p>
+                  <p className="text-gray-900">{order.customerEmail}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Jenis Website</label>
@@ -271,7 +271,7 @@ export default function AdminOrderDetailPage() {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Dibuat</label>
-                  <p className="text-gray-900">{new Date(order.created_at).toLocaleDateString('id-ID')}</p>
+                  <p className="text-gray-900">{new Date(order.createdAt).toLocaleDateString('id-ID')}</p>
                 </div>
               </CardContent>
             </Card>
@@ -359,7 +359,7 @@ export default function AdminOrderDetailPage() {
                       }
                     })}
                     error={errors.repo_url?.message}
-                    defaultValue={order.repo_url || ''}
+                    defaultValue={order.repoUrl || ''}
                   />
 
                   <Input
@@ -372,7 +372,7 @@ export default function AdminOrderDetailPage() {
                       }
                     })}
                     error={errors.demo_url?.message}
-                    defaultValue={order.demo_url || ''}
+                    defaultValue={order.demoUrl || ''}
                   />
 
                   <div className="space-y-1">
@@ -421,28 +421,28 @@ export default function AdminOrderDetailPage() {
             </Card>
 
             {/* Current Project Details */}
-            {(order.repo_url || order.demo_url || order.file_structure || order.notes) && (
+            {(order.repoUrl || order.demoUrl || order.fileStructure || order.notes) && (
               <Card>
                 <CardHeader>
                   <CardTitle>Detail Proyek Saat Ini</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {order.repo_url && (
+                  {order.repoUrl && (
                     <div>
                       <label className="text-sm font-medium text-gray-500">Repository GitHub</label>
-                      <p className="text-gray-900 break-all">{order.repo_url}</p>
+                      <p className="text-gray-900 break-all">{order.repoUrl}</p>
                     </div>
                   )}
-                  {order.demo_url && (
+                  {order.demoUrl && (
                     <div>
                       <label className="text-sm font-medium text-gray-500">Demo Website</label>
-                      <p className="text-gray-900 break-all">{order.demo_url}</p>
+                      <p className="text-gray-900 break-all">{order.demoUrl}</p>
                     </div>
                   )}
-                  {order.file_structure && (
+                  {order.fileStructure && (
                     <div>
                       <label className="text-sm font-medium text-gray-500">Struktur File</label>
-                      {renderFileStructure(order.file_structure)}
+                      {renderFileStructure(order.fileStructure)}
                     </div>
                   )}
                   {order.notes && (

@@ -64,18 +64,21 @@ export default function NewProductPage() {
         .map(feature => feature.trim())
         .filter(feature => feature.length > 0)
 
-      const { error } = await supabase
-        .from('products')
-        .insert({
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           name: data.name,
           description: data.description,
           price: data.price,
           category: data.category,
           features: features,
-          is_active: true
+          isActive: true
         })
+      })
 
-      if (error) throw error
+      const result = await response.json()
+      if (!result.success) throw new Error(result.error)
 
       toast.success('Produk berhasil ditambahkan')
       router.push('/admin/products')
