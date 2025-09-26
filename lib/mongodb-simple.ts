@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://Vercel-Admin-atlas-lightBlue-book:5scP865PtNLctb4k@atlas-lightblue-book.mfbxilu.mongodb.net/?retryWrites=true&w=majority"
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://Vercel-Admin-atlas-lightBlue-book:<db_password>@atlas-lightblue-book.mfbxilu.mongodb.net/"
 
 let isConnected = false
 
@@ -10,7 +10,7 @@ async function connectDB() {
   }
 
   try {
-    await mongoose.connect(MONGODB_URI!)
+    await mongoose.connect(MONGODB_URI)
     isConnected = true
     console.log('MongoDB connected successfully')
     return mongoose
