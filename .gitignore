@@ -32,6 +32,25 @@ yarn-error.log*
 ADMIN_CREDENTIALS_PRIVATE.md
 .env
 
+# MongoDB setup files
+setup-mongodb.*
+mongodb-connect.js
+mongodb-setup-commands.md
+run-mongosh-*.bat
+run-mongosh-*.ps1
+
+# Supabase files (no longer used)
+supabase/
+
+# Test files
+app/api/mongodb-test/
+app/api/mongodb-vercel-test/
+app/api/test-mongodb/
+app/api/products-mongodb/
+
+# Installer files
+*.msi
+
 # vercel
 .vercel
 
