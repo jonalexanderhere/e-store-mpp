@@ -9,8 +9,19 @@ import { getCurrentUser } from '@/lib/auth'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { Product } from '@/lib/supabase'
 import toast from 'react-hot-toast'
+
+interface Product {
+  _id: string
+  name: string
+  description: string
+  price: number
+  category: string
+  features: string[]
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -24,17 +35,17 @@ export default function ProductsPage() {
         const currentUser = await getCurrentUser()
         setUser(currentUser)
 
-        // Fetch products
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .eq('is_active', true)
-          .order('created_at', { ascending: false })
+        // Fetch products from MongoDB
+        const response = await fetch('/api/products-mongodb')
+        const data = await response.json()
+        
+        if (data.success) {
+          setProducts(data.products || [])
+        } else {
+          console.error('Error fetching products:', data.error)
+        }
 
-        if (error) throw error
-        setProducts(data || [])
-
-        // Fetch cart count
+        // Fetch cart count from Supabase (still using Supabase for cart)
         if (currentUser) {
           const { count } = await supabase
             .from('cart')
@@ -108,7 +119,7 @@ export default function ProductsPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
-            <Card key={product.id} className="hover:shadow-lg transition-shadow">
+            <Card key={product._id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <Badge variant="info">{product.category}</Badge>
@@ -141,7 +152,7 @@ export default function ProductsPage() {
                   </div>
 
                   <Button
-                    onClick={() => addToCart(product.id)}
+                    onClick={() => addToCart(product._id)}
                     className="w-full"
                     disabled={!user}
                   >
