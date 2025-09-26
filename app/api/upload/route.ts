@@ -1,19 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import clientPromise from '@/lib/mongodb'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
-    
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const formData = await request.formData()
     const file = formData.get('file') as File
     const orderId = formData.get('orderId') as string
@@ -22,23 +11,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File and orderId are required' }, { status: 400 })
     }
 
+    // For now, just return a mock file path
+    // TODO: Implement proper file upload to cloud storage (AWS S3, Cloudinary, etc.)
     const fileExt = file.name.split('.').pop()
     const fileName = `${orderId}-payment-proof.${fileExt}`
-    const filePath = `payment-proofs/${fileName}`
+    const filePath = `uploads/payment-proofs/${fileName}`
 
-    const { error: uploadError } = await supabase.storage
-      .from('uploads')
-      .upload(filePath, file)
-
-    if (uploadError) throw uploadError
-
-    // Update order with payment proof URL
-    const { error: updateError } = await supabase
-      .from('orders')
-      .update({ payment_proof_url: filePath })
-      .eq('id', orderId)
-
-    if (updateError) throw updateError
+    // Update order with payment proof URL in MongoDB
+    const client = await clientPromise
+    const db = client.db('website-service')
+    
+    await db.collection('orders').updateOne(
+      { _id: orderId },
+      { 
+        $set: { 
+          paymentProofUrl: filePath,
+          updatedAt: new Date()
+        } 
+      }
+    )
 
     return NextResponse.json({ 
       success: true, 

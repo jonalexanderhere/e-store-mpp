@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import clientPromise from '@/lib/mongodb'
+
+
+
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const client = await clientPromise
+    const db = client.db('website-service')
     
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
+    // TODO: Implement proper authentication
 
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    // TODO: Add authentication check
 
     const { data, error } = await supabase
       .from('cart')
@@ -23,7 +22,7 @@ export async function GET(request: NextRequest) {
       .eq('user_id', session.user.id)
       .order('created_at', { ascending: false })
 
-    if (error) throw error
+    if (error) throw new Error(error)
 
     return NextResponse.json({ cart: data })
   } catch (error: any) {
@@ -33,15 +32,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const client = await clientPromise
+    const db = client.db('website-service')
     
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
+    // TODO: Implement proper authentication
 
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    // TODO: Add authentication check
 
     const body = await request.json()
     const { product_id, quantity = 1 } = body
@@ -56,7 +52,7 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) throw new Error(error)
 
     return NextResponse.json({ cart: data })
   } catch (error: any) {
@@ -66,15 +62,12 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const client = await clientPromise
+    const db = client.db('website-service')
     
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
+    // TODO: Implement proper authentication
 
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    // TODO: Add authentication check
 
     const { searchParams } = new URL(request.url)
     const cart_id = searchParams.get('cart_id')
@@ -89,7 +82,7 @@ export async function DELETE(request: NextRequest) {
       .eq('id', cart_id)
       .eq('user_id', session.user.id)
 
-    if (error) throw error
+    if (error) throw new Error(error)
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
