@@ -4,76 +4,37 @@ import { cookies } from 'next/headers'
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('🔍 Fetching products from Supabase...')
+    
     const supabase = createRouteHandlerClient({ cookies })
     
-    const { searchParams } = new URL(request.url)
-    const category = searchParams.get('category')
-    const active = searchParams.get('active')
-
-    let query = supabase.from('products').select('*')
-
-    if (category) {
-      query = query.eq('category', category)
-    }
-
-    if (active !== null) {
-      query = query.eq('is_active', active === 'true')
-    }
-
-    const { data, error } = await query.order('created_at', { ascending: false })
-
-    if (error) throw error
-
-    return NextResponse.json({ products: data })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const supabase = createRouteHandlerClient({ cookies })
-    
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Check if user is admin
-    const { data: user } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', session.user.id)
-      .single()
-
-    if (user?.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
-    const body = await request.json()
-    const { name, description, price, category, features, is_active = true } = body
-
-    const { data, error } = await supabase
+    const { data: products, error } = await supabase
       .from('products')
-      .insert({
-        name,
-        description,
-        price,
-        category,
-        features,
-        is_active
-      })
-      .select()
-      .single()
-
-    if (error) throw error
-
-    return NextResponse.json({ product: data })
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+    
+    if (error) {
+      console.error('Supabase error:', error)
+      return NextResponse.json({ 
+        success: false, 
+        error: error.message 
+      }, { status: 500 })
+    }
+    
+    console.log(`✅ Found ${products?.length || 0} products from Supabase`)
+    
+    return NextResponse.json({ 
+      success: true, 
+      products: products || [],
+      count: products?.length || 0,
+      source: 'supabase'
+    })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Products fetch error:', error)
+    return NextResponse.json({ 
+      success: false, 
+      error: error.message 
+    }, { status: 500 })
   }
 }
-

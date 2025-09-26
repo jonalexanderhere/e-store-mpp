@@ -12,15 +12,15 @@ import { Badge } from '@/components/ui/Badge'
 import toast from 'react-hot-toast'
 
 interface Product {
-  _id: string
+  id: string
   name: string
   description: string
   price: number
   category: string
   features: string[]
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
 }
 
 export default function ProductsPage() {
@@ -35,9 +35,9 @@ export default function ProductsPage() {
         const currentUser = await getCurrentUser()
         setUser(currentUser)
 
-        // Fetch products from MongoDB
-        console.log('Fetching products from MongoDB API...')
-        const response = await fetch('/api/products-mongodb')
+        // Fetch products from Supabase (more reliable)
+        console.log('Fetching products from Supabase API...')
+        const response = await fetch('/api/products')
         const data = await response.json()
         
         console.log('API Response:', data)
@@ -144,7 +144,7 @@ export default function ProductsPage() {
             </div>
           ) : (
             products.map((product) => (
-            <Card key={product._id} className="hover:shadow-lg transition-shadow">
+            <Card key={product.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <Badge variant="info">{product.category}</Badge>
@@ -177,7 +177,7 @@ export default function ProductsPage() {
                   </div>
 
                   <Button
-                    onClick={() => addToCart(product._id)}
+                    onClick={() => addToCart(product.id)}
                     className="w-full"
                     disabled={!user}
                   >

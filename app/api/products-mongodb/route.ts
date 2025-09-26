@@ -13,6 +13,8 @@ export async function GET(request: NextRequest) {
     console.log('MongoDB URI:', MONGODB_URI ? 'Set' : 'Not set')
     
     const options = {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
       ssl: true,
       sslValidate: true,
       authSource: 'admin',
