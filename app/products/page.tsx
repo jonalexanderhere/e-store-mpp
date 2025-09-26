@@ -36,13 +36,20 @@ export default function ProductsPage() {
         setUser(currentUser)
 
         // Fetch products from MongoDB
+        console.log('Fetching products from MongoDB API...')
         const response = await fetch('/api/products-mongodb')
         const data = await response.json()
         
+        console.log('API Response:', data)
+        
         if (data.success) {
           setProducts(data.products || [])
+          console.log('Products loaded:', data.products?.length || 0)
         } else {
           console.error('Error fetching products:', data.error)
+          console.error('Error details:', data.details)
+          // Set empty products array on error
+          setProducts([])
         }
 
         // Fetch cart count from Supabase (still using Supabase for cart)
@@ -56,6 +63,7 @@ export default function ProductsPage() {
         }
       } catch (error) {
         console.error('Error fetching data:', error)
+        setProducts([])
       } finally {
         setLoading(false)
       }
@@ -118,7 +126,24 @@ export default function ProductsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
+          {products.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <div className="text-gray-400 mb-4">
+                <ShoppingCart className="h-12 w-12 mx-auto" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Belum ada produk tersedia
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Produk akan segera ditambahkan. Silakan kembali lagi nanti.
+              </p>
+              <div className="text-sm text-gray-400">
+                <p>Debug info: Loading state selesai, products array kosong</p>
+                <p>Silakan cek console browser untuk detail error</p>
+              </div>
+            </div>
+          ) : (
+            products.map((product) => (
             <Card key={product._id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -162,14 +187,9 @@ export default function ProductsPage() {
                 </div>
               </CardContent>
             </Card>
-          ))}
+            ))
+          )}
         </div>
-
-        {products.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">Belum ada produk tersedia</p>
-          </div>
-        )}
       </div>
     </div>
   )

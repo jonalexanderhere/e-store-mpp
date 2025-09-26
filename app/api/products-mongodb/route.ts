@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { MongoClient } from 'mongodb'
 
-const MONGODB_URI = "mongodb+srv://Vercel-Admin-atlas-lightBlue-book:n6qGV4qMOtt3NI9U@atlas-lightblue-book.mfbxilu.mongodb.net/?retryWrites=true&w=majority";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://Vercel-Admin-atlas-lightBlue-book:n6qGV4qMOtt3NI9U@atlas-lightblue-book.mfbxilu.mongodb.net/?retryWrites=true&w=majority";
 
 export async function GET(request: NextRequest) {
   let client;
   
   try {
     console.log('🔍 Fetching products from MongoDB...')
+    console.log('MongoDB URI:', MONGODB_URI ? 'Set' : 'Not set')
     
     client = new MongoClient(MONGODB_URI);
     await client.connect();
@@ -18,6 +19,7 @@ export async function GET(request: NextRequest) {
     const products = await db.collection('products').find({ isActive: true }).sort({ createdAt: -1 }).toArray();
     
     console.log(`✅ Found ${products.length} products`);
+    console.log('Products:', products.map(p => ({ name: p.name, price: p.price })));
     
     return NextResponse.json({ 
       success: true, 
@@ -28,7 +30,8 @@ export async function GET(request: NextRequest) {
     console.error('MongoDB products fetch error:', error)
     return NextResponse.json({ 
       success: false, 
-      error: error.message 
+      error: error.message,
+      details: error.toString()
     }, { status: 500 })
   } finally {
     if (client) {
@@ -37,34 +40,3 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    await connectDB()
-    
-    const body = await request.json()
-    const { name, description, price, category, features } = body
-    
-    const product = new Product({
-      name,
-      description,
-      price,
-      category,
-      features: features || [],
-      isActive: true
-    })
-    
-    await product.save()
-    
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Product created successfully',
-      product: product
-    })
-  } catch (error: any) {
-    console.error('MongoDB product create error:', error)
-    return NextResponse.json({ 
-      success: false, 
-      error: error.message 
-    }, { status: 500 })
-  }
-}
