@@ -5,12 +5,28 @@ import { useState, useEffect } from 'react'
 export const dynamic = 'force-dynamic'
 import { useRouter } from 'next/navigation'
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Cart, Product } from '@/lib/supabase'
 import toast from 'react-hot-toast'
+
+interface Cart {
+  _id: string
+  userId: string
+  productId: string
+  quantity: number
+  product?: Product
+}
+
+interface Product {
+  _id: string
+  name: string
+  description: string
+  price: number
+  category: string
+  features: string[]
+  isActive: boolean
+}
 
 export default function CartPage() {
   const [cartItems, setCartItems] = useState<Cart[]>([])

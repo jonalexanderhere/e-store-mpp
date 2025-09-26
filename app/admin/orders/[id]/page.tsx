@@ -9,12 +9,10 @@ import Image from 'next/image'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { getCurrentUser, getUserRole } from '@/lib/auth'
-import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { Order } from '@/lib/supabase'
 
 interface ProjectDetailsForm {
   repo_url: string

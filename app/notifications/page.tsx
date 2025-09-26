@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { getCurrentUser } from '@/lib/auth'
-import { supabase } from '@/lib/supabase'
+
 import toast from 'react-hot-toast'
 
 interface Notification {

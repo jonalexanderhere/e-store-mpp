@@ -7,11 +7,11 @@ import { useRouter } from 'next/navigation'
 import { useParams } from 'next/navigation'
 import { Upload, ExternalLink, Github, FileText, CheckCircle, Clock, XCircle } from 'lucide-react'
 import { getCurrentUser } from '@/lib/auth'
-import { supabase } from '@/lib/supabase'
+
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { Order } from '@/lib/supabase'
+
 
 export default function OrderDetailPage() {
   const [user, setUser] = useState<any>(null)

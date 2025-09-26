@@ -7,11 +7,11 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Plus, Eye, Clock, CheckCircle, XCircle } from 'lucide-react'
 import { getCurrentUser } from '@/lib/auth'
-import { supabase } from '@/lib/supabase'
+
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { Order } from '@/lib/supabase'
+
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null)

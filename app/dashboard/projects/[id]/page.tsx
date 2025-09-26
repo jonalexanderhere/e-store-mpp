@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 import { useRouter, useParams } from 'next/navigation'
 import { ExternalLink, Github, FileText, Globe, CheckCircle, Clock, AlertCircle } from 'lucide-react'
 import { getCurrentUser } from '@/lib/auth'
-import { supabase } from '@/lib/supabase'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'

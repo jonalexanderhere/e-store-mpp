@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { getCurrentUser, getUserRole } from '@/lib/auth'
-import { supabase } from '@/lib/supabase'
+
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'

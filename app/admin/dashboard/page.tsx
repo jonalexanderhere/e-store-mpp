@@ -6,11 +6,11 @@ export const dynamic = 'force-dynamic'
 import { useRouter } from 'next/navigation'
 import { Eye, CheckCircle, XCircle, Clock, Users, FileText, DollarSign } from 'lucide-react'
 import { getCurrentUser, getUserRole } from '@/lib/auth'
-import { supabase } from '@/lib/supabase'
+
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { Order } from '@/lib/supabase'
+
 
 export default function AdminDashboardPage() {
   const [user, setUser] = useState<any>(null)

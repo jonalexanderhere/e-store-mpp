@@ -6,12 +6,22 @@ export const dynamic = 'force-dynamic'
 import { useRouter } from 'next/navigation'
 import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react'
 import { getCurrentUser, getUserRole } from '@/lib/auth'
-import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { Product } from '@/lib/supabase'
 import toast from 'react-hot-toast'
+
+interface Product {
+  _id: string
+  name: string
+  description: string
+  price: number
+  category: string
+  features: string[]
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -32,14 +42,15 @@ export default function AdminProductsPage() {
         }
         setUser(currentUser)
 
-        // Fetch all products
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .order('created_at', { ascending: false })
-
-        if (error) throw error
-        setProducts(data || [])
+        // Fetch all products from MongoDB
+        const response = await fetch('/api/products')
+        const data = await response.json()
+        
+        if (data.success) {
+          setProducts(data.products || [])
+        } else {
+          console.error('Error fetching products:', data.error)
+        }
       } catch (error) {
         console.error('Error fetching products:', error)
         router.push('/auth/login')
