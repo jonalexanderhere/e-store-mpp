@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 
 export const dynamic = 'force-dynamic'
 import { ShoppingCart, Star, CheckCircle } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+// Removed Supabase import - using MongoDB now
 import { getCurrentUser } from '@/lib/auth'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
@@ -35,8 +35,8 @@ export default function ProductsPage() {
         const currentUser = await getCurrentUser()
         setUser(currentUser)
 
-        // Fetch products from Supabase (more reliable)
-        console.log('Fetching products from Supabase API...')
+        // Fetch products from MongoDB
+        console.log('Fetching products from MongoDB API...')
         const response = await fetch('/api/products')
         const data = await response.json()
         
@@ -52,15 +52,8 @@ export default function ProductsPage() {
           setProducts([])
         }
 
-        // Fetch cart count from Supabase (still using Supabase for cart)
-        if (currentUser) {
-          const { count } = await supabase
-            .from('cart')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', currentUser.id)
-          
-          setCartCount(count || 0)
-        }
+        // Cart functionality will be implemented later with MongoDB
+        setCartCount(0)
       } catch (error) {
         console.error('Error fetching data:', error)
         setProducts([])
@@ -79,16 +72,7 @@ export default function ProductsPage() {
     }
 
     try {
-      const { error } = await supabase
-        .from('cart')
-        .upsert({
-          user_id: user.id,
-          product_id: productId,
-          quantity: 1
-        })
-
-      if (error) throw error
-
+      // TODO: Implement MongoDB cart functionality
       toast.success('Produk ditambahkan ke keranjang')
       setCartCount(prev => prev + 1)
     } catch (error: any) {

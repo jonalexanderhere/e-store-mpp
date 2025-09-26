@@ -1,58 +1,67 @@
-import { supabase } from './supabase'
-import { User } from './supabase'
+import clientPromise from './mongodb'
+import { IUser } from './mongodb-models'
+
+// Simple session management (you might want to use JWT or sessions in production)
+let currentUser: IUser | null = null
 
 export async function signUp(email: string, password: string) {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  })
+  const client = await clientPromise
+  const db = client.db('website-service')
   
-  if (error) throw error
-  
-  // Create user profile
-  if (data.user) {
-    const { error: profileError } = await supabase
-      .from('users')
-      .insert({
-        id: data.user.id,
-        email: data.user.email!,
-        role: 'customer'
-      })
-    
-    if (profileError) throw profileError
+  // Check if user already exists
+  const existingUser = await db.collection('users').findOne({ email })
+  if (existingUser) {
+    throw new Error('User already exists')
   }
   
-  return data
+  // Create new user
+  const newUser = {
+    email,
+    password, // In production, hash this password
+    role: 'customer',
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }
+  
+  const result = await db.collection('users').insertOne(newUser)
+  
+  return {
+    user: {
+      id: result.insertedId.toString(),
+      email,
+      role: 'customer'
+    }
+  }
 }
 
 export async function signIn(email: string, password: string) {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
+  const client = await clientPromise
+  const db = client.db('website-service')
   
-  if (error) throw error
-  return data
+  const user = await db.collection('users').findOne({ email, password })
+  
+  if (!user) {
+    throw new Error('Invalid credentials')
+  }
+  
+  // Set current user
+  currentUser = user
+  
+  return {
+    user: {
+      id: user._id.toString(),
+      email: user.email,
+      role: user.role
+    }
+  }
 }
 
 export async function signOut() {
-  const { error } = await supabase.auth.signOut()
-  if (error) throw error
+  currentUser = null
 }
 
-export async function getCurrentUser(): Promise<User | null> {
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) return null
-  
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', user.id)
-    .single()
-  
-  if (error) return null
-  return data
+export async function getCurrentUser(): Promise<IUser | null> {
+  return currentUser
 }
 
 export async function getUserRole(): Promise<'admin' | 'customer' | null> {
