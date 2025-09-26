@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
 import { attachDatabasePool } from "@vercel/functions";
 
-const uri = process.env.MONGODB_URI || "mongodb+srv://Vercel-Admin-atlas-lightBlue-book:<db_password>@atlas-lightblue-book.mfbxilu.mongodb.net/";
+const uri = process.env.MONGODB_URI || "mongodb+srv://Vercel-Admin-atlas-lightBlue-book:n6qGV4qMOtt3NI9U@atlas-lightblue-book.mfbxilu.mongodb.net/";
 const options = {};
 
 let client: MongoClient;
