@@ -2,16 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import clientPromise from '@/lib/mongodb'
 import { ObjectId } from 'mongodb'
 
-
-
-
 export async function GET(request: NextRequest) {
   try {
+    console.log('🔍 Fetching cart from MongoDB with enhanced TLS config...')
+    
     const client = await clientPromise
     const db = client.db('website-service')
     
     // TODO: Implement proper authentication
-
     // For now, fetch all cart items. In a real app, you'd filter by user_id
     const cartItems = await db.collection('cart').aggregate([
       {
@@ -32,18 +30,20 @@ export async function GET(request: NextRequest) {
       cartItems: cartItems
     })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('MongoDB cart fetch error:', error)
+    return NextResponse.json({
+      success: false,
+      error: error.message
+    }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔍 Adding item to cart in MongoDB with enhanced TLS config...')
+    
     const client = await clientPromise
     const db = client.db('website-service')
-    
-    // TODO: Implement proper authentication
-
-    // TODO: Add authentication check
 
     const body = await request.json()
     const { userId, productId, quantity } = body
@@ -79,18 +79,56 @@ export async function POST(request: NextRequest) {
       result
     })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('MongoDB add to cart error:', error)
+    return NextResponse.json({
+      success: false,
+      error: error.message
+    }, { status: 500 })
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    console.log('🔍 Updating cart item in MongoDB with enhanced TLS config...')
+    
+    const client = await clientPromise
+    const db = client.db('website-service')
+
+    const body = await request.json()
+    const { id, quantity } = body
+
+    if (!id || !quantity) {
+      return NextResponse.json({ error: 'id and quantity are required' }, { status: 400 })
+    }
+
+    const result = await db.collection('cart').updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { quantity, updatedAt: new Date() } }
+    )
+
+    if (result.matchedCount === 0) {
+      return NextResponse.json({ error: 'Cart item not found' }, { status: 404 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Cart item updated successfully'
+    })
+  } catch (error: any) {
+    console.error('MongoDB update cart item error:', error)
+    return NextResponse.json({
+      success: false,
+      error: error.message
+    }, { status: 500 })
   }
 }
 
 export async function DELETE(request: NextRequest) {
   try {
+    console.log('🔍 Deleting cart item in MongoDB with enhanced TLS config...')
+    
     const client = await clientPromise
     const db = client.db('website-service')
-    
-    // TODO: Implement proper authentication
-
-    // TODO: Add authentication check
 
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
@@ -110,7 +148,10 @@ export async function DELETE(request: NextRequest) {
       message: 'Cart item deleted successfully'
     })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('MongoDB delete cart item error:', error)
+    return NextResponse.json({
+      success: false,
+      error: error.message
+    }, { status: 500 })
   }
 }
-

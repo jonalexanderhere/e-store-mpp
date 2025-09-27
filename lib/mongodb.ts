@@ -1,16 +1,33 @@
-import { MongoClient, MongoClientOptions } from 'mongodb'
+import { MongoClient, MongoClientOptions, ServerApiVersion } from 'mongodb'
 
-// Simplified connection string with SSL parameters
-const uri = process.env.MONGODB_URI || "mongodb+srv://Vercel-Admin-atlas-lightBlue-book:n6qGV4qMOtt3NI9U@atlas-lightblue-book.mfbxilu.mongodb.net/website-service?retryWrites=true&w=majority&ssl=true&authSource=admin"
+// Enhanced connection string with proper TLS parameters
+const uri = process.env.MONGODB_URI || "mongodb+srv://Vercel-Admin-atlas-lightBlue-book:n6qGV4qMOtt3NI9U@atlas-lightblue-book.mfbxilu.mongodb.net/website-service?retryWrites=true&w=majority&tls=true&authSource=admin"
 
-// Minimal MongoDB connection options to avoid SSL issues
+// Enhanced MongoDB connection options with proper TLS configuration
 const options: MongoClientOptions = {
-  maxPoolSize: 5,
-  serverSelectionTimeoutMS: 10000,
-  socketTimeoutMS: 30000,
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true
+  },
+  // TLS Configuration
+  tls: true,
+  tlsAllowInvalidCertificates: false,
+  tlsAllowInvalidHostnames: false,
+  // Connection timeouts
+  serverSelectionTimeoutMS: 15000,
   connectTimeoutMS: 15000,
+  socketTimeoutMS: 30000,
+  // Pool settings
+  maxPoolSize: 5,
+  minPoolSize: 1,
+  maxIdleTimeMS: 30000,
+  // Retry settings
   retryReads: true,
-  retryWrites: true
+  retryWrites: true,
+  // Compression
+  compressors: ['zlib'],
+  zlibCompressionLevel: 6
 }
 
 let client: MongoClient

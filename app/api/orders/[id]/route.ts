@@ -7,6 +7,8 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    console.log('🔍 Fetching order from MongoDB with enhanced TLS config...')
+    
     const client = await clientPromise
     const db = client.db('website-service')
     
@@ -18,6 +20,7 @@ export async function GET(
 
     return NextResponse.json({ order })
   } catch (error: any) {
+    console.error('MongoDB order fetch error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -27,6 +30,8 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    console.log('🔍 Updating order in MongoDB with enhanced TLS config...')
+    
     const client = await clientPromise
     const db = client.db('website-service')
     
@@ -53,7 +58,9 @@ export async function PUT(
 
     return NextResponse.json({ order: updatedOrder })
   } catch (error: any) {
+    console.error('MongoDB order update error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
+
 
