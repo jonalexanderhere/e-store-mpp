@@ -1,19 +1,16 @@
 import { MongoClient, MongoClientOptions } from 'mongodb'
 
-const uri = process.env.MONGODB_URI || "mongodb+srv://Vercel-Admin-atlas-lightBlue-book:n6qGV4qMOtt3NI9U@atlas-lightblue-book.mfbxilu.mongodb.net/?retryWrites=true&w=majority"
+// Simplified connection string with SSL parameters
+const uri = process.env.MONGODB_URI || "mongodb+srv://Vercel-Admin-atlas-lightBlue-book:n6qGV4qMOtt3NI9U@atlas-lightblue-book.mfbxilu.mongodb.net/website-service?retryWrites=true&w=majority&ssl=true&authSource=admin"
 
-// MongoDB connection options for better SSL/TLS handling
+// Minimal MongoDB connection options to avoid SSL issues
 const options: MongoClientOptions = {
-  maxPoolSize: 10,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-  connectTimeoutMS: 10000,
-  heartbeatFrequencyMS: 10000,
-  maxIdleTimeMS: 30000,
+  maxPoolSize: 5,
+  serverSelectionTimeoutMS: 10000,
+  socketTimeoutMS: 30000,
+  connectTimeoutMS: 15000,
   retryReads: true,
-  retryWrites: true,
-  compressors: ['zlib'],
-  zlibCompressionLevel: 6
+  retryWrites: true
 }
 
 let client: MongoClient

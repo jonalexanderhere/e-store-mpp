@@ -35,21 +35,29 @@ export default function ProductsPage() {
         const currentUser = await getCurrentUser()
         setUser(currentUser)
 
-        // Fetch products from MongoDB
+        // Try MongoDB API first, then fallback to test API
         console.log('Fetching products from MongoDB API...')
-        const response = await fetch('/api/products')
-        const data = await response.json()
+        let response = await fetch('/api/products')
+        let data = await response.json()
         
         console.log('API Response:', data)
         
-        if (data.success) {
+        if (data.success && data.source === 'mongodb') {
           setProducts(data.products || [])
-          console.log('Products loaded:', data.products?.length || 0)
+          console.log('Products loaded from MongoDB:', data.products?.length || 0)
         } else {
-          console.error('Error fetching products:', data.error)
-          console.error('Error details:', data.details)
-          // Set empty products array on error
-          setProducts([])
+          console.log('MongoDB failed, trying test API...')
+          // Fallback to test API
+          response = await fetch('/api/test-products')
+          data = await response.json()
+          
+          if (data.success) {
+            setProducts(data.products || [])
+            console.log('Products loaded from test API:', data.products?.length || 0)
+          } else {
+            console.error('Error fetching products:', data.error)
+            setProducts([])
+          }
         }
 
         // Cart functionality will be implemented later with MongoDB
