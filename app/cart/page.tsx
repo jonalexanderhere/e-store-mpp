@@ -45,18 +45,15 @@ export default function CartPage() {
         }
         setUser(currentUser)
 
-        // Fetch cart items with product details
-        const { data, error } = await supabase
-          .from('cart')
-          .select(`
-            *,
-            product:products(*)
-          `)
-          .eq('user_id', currentUser.id)
-          .order('created_at', { ascending: false })
+        // Fetch cart items from MongoDB
+        const response = await fetch('/api/cart')
+        const data = await response.json()
 
-        if (error) throw error
-        setCartItems(data || [])
+        if (data.success) {
+          setCartItems(data.cartItems || [])
+        } else {
+          console.error('Error fetching cart items:', data.error)
+        }
       } catch (error) {
         console.error('Error fetching cart:', error)
       } finally {
@@ -75,16 +72,18 @@ export default function CartPage() {
 
     setUpdating(cartId)
     try {
-      const { error } = await supabase
-        .from('cart')
-        .update({ quantity: newQuantity })
-        .eq('id', cartId)
+      const response = await fetch('/api/cart', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: cartId, quantity: newQuantity })
+      })
 
-      if (error) throw error
+      const data = await response.json()
+      if (!data.success) throw new Error(data.error)
 
       setCartItems(prev => 
         prev.map(item => 
-          item.id === cartId 
+          item._id === cartId 
             ? { ...item, quantity: newQuantity }
             : item
         )
@@ -99,14 +98,14 @@ export default function CartPage() {
   const removeFromCart = async (cartId: string) => {
     setUpdating(cartId)
     try {
-      const { error } = await supabase
-        .from('cart')
-        .delete()
-        .eq('id', cartId)
+      const response = await fetch(`/api/cart?id=${cartId}`, {
+        method: 'DELETE'
+      })
 
-      if (error) throw error
+      const data = await response.json()
+      if (!data.success) throw new Error(data.error)
 
-      setCartItems(prev => prev.filter(item => item.id !== cartId))
+      setCartItems(prev => prev.filter(item => item._id !== cartId))
       toast.success('Produk dihapus dari keranjang')
     } catch (error: any) {
       toast.error(error.message || 'Gagal menghapus produk')
@@ -174,7 +173,7 @@ export default function CartPage() {
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
               {cartItems.map((item) => (
-                <Card key={item.id}>
+                <Card key={item._id}>
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-4">
                       <div className="flex-1">
@@ -193,8 +192,8 @@ export default function CartPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          disabled={updating === item.id}
+                          onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                          disabled={updating === item._id}
                         >
                           <Minus className="h-4 w-4" />
                         </Button>
@@ -206,8 +205,8 @@ export default function CartPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          disabled={updating === item.id}
+                          onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                          disabled={updating === item._id}
                         >
                           <Plus className="h-4 w-4" />
                         </Button>
@@ -216,8 +215,8 @@ export default function CartPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => removeFromCart(item.id)}
-                        disabled={updating === item.id}
+                        onClick={() => removeFromCart(item._id)}
+                        disabled={updating === item._id}
                         className="text-red-600 hover:text-red-700"
                       >
                         <Trash2 className="h-4 w-4" />

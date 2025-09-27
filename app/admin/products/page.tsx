@@ -65,17 +65,19 @@ export default function AdminProductsPage() {
   const toggleProductStatus = async (productId: string, currentStatus: boolean) => {
     setUpdating(productId)
     try {
-      const { error } = await supabase
-        .from('products')
-        .update({ is_active: !currentStatus })
-        .eq('id', productId)
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: !currentStatus })
+      })
 
-      if (error) throw error
+      const data = await response.json()
+      if (!data.success) throw new Error(data.error)
 
       setProducts(prev => 
         prev.map(product => 
-          product.id === productId 
-            ? { ...product, is_active: !currentStatus }
+          product._id === productId 
+            ? { ...product, isActive: !currentStatus }
             : product
         )
       )
@@ -95,14 +97,14 @@ export default function AdminProductsPage() {
 
     setUpdating(productId)
     try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', productId)
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'DELETE'
+      })
 
-      if (error) throw error
+      const data = await response.json()
+      if (!data.success) throw new Error(data.error)
 
-      setProducts(prev => prev.filter(product => product.id !== productId))
+      setProducts(prev => prev.filter(product => product._id !== productId))
       toast.success('Produk berhasil dihapus')
     } catch (error: any) {
       toast.error(error.message || 'Gagal menghapus produk')
@@ -150,35 +152,35 @@ export default function AdminProductsPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
-            <Card key={product.id} className="hover:shadow-lg transition-shadow">
+            <Card key={product._id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <Badge variant={product.is_active ? 'success' : 'warning'}>
-                    {product.is_active ? 'Aktif' : 'Nonaktif'}
+                  <Badge variant={product.isActive ? 'success' : 'warning'}>
+                    {product.isActive ? 'Aktif' : 'Nonaktif'}
                   </Badge>
                   <div className="flex items-center space-x-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => toggleProductStatus(product.id, product.is_active)}
-                      loading={updating === product.id}
-                      disabled={updating === product.id}
+                      onClick={() => toggleProductStatus(product._id, product.isActive)}
+                      loading={updating === product._id}
+                      disabled={updating === product._id}
                     >
-                      {product.is_active ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {product.isActive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => router.push(`/admin/products/${product.id}/edit`)}
+                      onClick={() => router.push(`/admin/products/${product._id}/edit`)}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => deleteProduct(product.id)}
-                      loading={updating === product.id}
-                      disabled={updating === product.id}
+                      onClick={() => deleteProduct(product._id)}
+                      loading={updating === product._id}
+                      disabled={updating === product._id}
                       className="text-red-600 hover:text-red-700"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -218,7 +220,7 @@ export default function AdminProductsPage() {
                   </div>
                   
                   <div className="text-xs text-gray-500">
-                    Dibuat: {new Date(product.created_at).toLocaleDateString('id-ID')}
+                    Dibuat: {new Date(product.createdAt).toLocaleDateString('id-ID')}
                   </div>
                 </div>
               </CardContent>

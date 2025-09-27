@@ -94,16 +94,18 @@ export default function OrderPage() {
 
       const result = await response.json()
       
-      // Create notification for user
-      await supabase
-        .from('notifications')
-        .insert({
-          user_id: user?.id,
+      // Create notification for user via API
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user?.id,
           title: 'Pesanan Berhasil Dibuat!',
           message: `Pesanan website ${data.website_type} Anda telah berhasil dibuat dan sedang menunggu konfirmasi admin.`,
           type: 'success',
-          order_id: result.id
+          orderId: result._id
         })
+      })
 
       toast.success('Pesanan berhasil dibuat! Anda akan menerima notifikasi update.')
       router.push('/dashboard')

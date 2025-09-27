@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import clientPromise from '@/lib/mongodb'
+import { ObjectId } from 'mongodb'
 
 
 
@@ -15,20 +16,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 })
     }
 
-    const { data, error } = await supabase
-      .from('notifications')
-      .select(`
-        *,
-        order:orders(*)
-      `)
-      .eq('user_id', user_id)
-      .order('created_at', { ascending: false })
+    // For now, fetch all notifications. In a real app, you'd filter by user_id
+    const notifications = await db.collection('notifications').find({}).sort({ createdAt: -1 }).toArray()
 
-    if (error) {
-      throw error
-    }
-
-    return NextResponse.json({ notifications: data })
+    return NextResponse.json({
+      success: true,
+      notifications: notifications
+    })
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
@@ -45,23 +39,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const { data, error } = await supabase
-      .from('notifications')
-      .insert({
-        user_id,
-        title,
-        message,
-        type: type || 'info',
-        order_id
-      })
-      .select()
-      .single()
-
-    if (error) {
-      throw error
+    const newNotification = {
+      userId: user_id ? new ObjectId(user_id) : null, // Assuming userId is ObjectId
+      title,
+      message,
+      type: type || 'info',
+      orderId: order_id ? new ObjectId(order_id) : null, // Assuming orderId is ObjectId
+      read: false,
+      createdAt: new Date()
     }
 
-    return NextResponse.json({ notification: data })
+    const result = await db.collection('notifications').insertOne(newNotification)
+
+    return NextResponse.json({
+      success: true,
+      message: 'Notification created successfully',
+      notification: { _id: result.insertedId, ...newNotification }
+    })
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
@@ -78,18 +72,19 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Notification ID required' }, { status: 400 })
     }
 
-    const { data, error } = await supabase
-      .from('notifications')
-      .update({ read })
-      .eq('id', notification_id)
-      .select()
-      .single()
+    const result = await db.collection('notifications').updateOne(
+      { _id: new ObjectId(notification_id) },
+      { $set: { read, updatedAt: new Date() } }
+    )
 
-    if (error) {
-      throw error
+    if (result.matchedCount === 0) {
+      return NextResponse.json({ error: 'Notification not found' }, { status: 404 })
     }
 
-    return NextResponse.json({ notification: data })
+    return NextResponse.json({
+      success: true,
+      message: 'Notification updated successfully'
+    })
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

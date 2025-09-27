@@ -65,3 +65,45 @@ export async function POST(request: NextRequest) {
     }, { status: 500 })
   }
 }
+
+export async function PUT(request: NextRequest) {
+  try {
+    console.log('🔍 Updating product in MongoDB...')
+    
+    const body = await request.json()
+    const { productId, isActive } = body
+    
+    const client = await clientPromise
+    const db = client.db('website-service')
+    
+    const result = await db.collection('products').updateOne(
+      { _id: productId },
+      { 
+        $set: { 
+          isActive,
+          updatedAt: new Date()
+        } 
+      }
+    )
+    
+    if (result.matchedCount === 0) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Product not found' 
+      }, { status: 404 })
+    }
+    
+    console.log(`✅ Product updated: ${productId}`)
+    
+    return NextResponse.json({ 
+      success: true,
+      message: 'Product updated successfully'
+    })
+  } catch (error: any) {
+    console.error('MongoDB product update error:', error)
+    return NextResponse.json({ 
+      success: false, 
+      error: error.message 
+    }, { status: 500 })
+  }
+}

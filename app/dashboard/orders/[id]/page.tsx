@@ -12,6 +12,22 @@ import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 
+interface Order {
+  _id: string
+  userId: string
+  customerName: string
+  customerEmail: string
+  websiteType: string
+  requirements: string
+  status: 'pending' | 'confirmed' | 'in_progress' | 'completed'
+  paymentProofUrl?: string
+  repoUrl?: string
+  demoUrl?: string
+  fileStructure?: string
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}
 
 export default function OrderDetailPage() {
   const [user, setUser] = useState<any>(null)
@@ -32,16 +48,16 @@ export default function OrderDetailPage() {
         }
         setUser(currentUser)
 
-        // Fetch order
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('id', params.id)
-          .eq('user_id', currentUser.id)
-          .single()
-
-        if (error) throw error
-        setOrder(data)
+        // Fetch order from MongoDB
+        const response = await fetch(`/api/orders/${params.id}`)
+        const data = await response.json()
+        
+        if (data.order) {
+          setOrder(data.order)
+        } else {
+          console.error('Error fetching order:', data.error)
+          router.push('/dashboard')
+        }
       } catch (error) {
         console.error('Error fetching data:', error)
         router.push('/dashboard')
@@ -60,30 +76,29 @@ export default function OrderDetailPage() {
     setUploading(true)
     try {
       const fileExt = file.name.split('.').pop()
-      const fileName = `${order?.id}-payment-proof.${fileExt}`
+      const fileName = `${order?._id}-payment-proof.${fileExt}`
       const filePath = `payment-proofs/${fileName}`
 
-      const { error: uploadError } = await supabase.storage
-        .from('uploads')
-        .upload(filePath, file)
+      // Upload file via API
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('orderId', order?._id || '')
 
-      if (uploadError) throw uploadError
+      const uploadResponse = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
 
-      const { error: updateError } = await supabase
-        .from('orders')
-        .update({ payment_proof_url: filePath })
-        .eq('id', order?.id)
-
-      if (updateError) throw updateError
+      const uploadData = await uploadResponse.json()
+      if (!uploadData.success) throw new Error(uploadData.error)
 
       // Refresh order data
-      const { data } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('id', order?.id)
-        .single()
-
-      setOrder(data)
+      const response = await fetch(`/api/orders/${order?._id}`)
+      const data = await response.json()
+      
+      if (data.order) {
+        setOrder(data.order)
+      }
     } catch (error: any) {
       console.error('Error uploading file:', error)
     } finally {
@@ -186,7 +201,7 @@ export default function OrderDetailPage() {
               <div className="flex items-center justify-between">
                 {getStatusBadge(order.status)}
                 <p className="text-sm text-gray-500">
-                  Dibuat: {new Date(order.created_at).toLocaleDateString('id-ID')}
+                  Dibuat: {new Date(order.createdAt).toLocaleDateString('id-ID')}
                 </p>
               </div>
             </CardContent>
@@ -200,15 +215,15 @@ export default function OrderDetailPage() {
             <CardContent className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-gray-500">Nama</label>
-                <p className="text-gray-900">{order.customer_name}</p>
+                <p className="text-gray-900">{order.customerName}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-500">Email</label>
-                <p className="text-gray-900">{order.customer_email}</p>
+                <p className="text-gray-900">{order.customerEmail}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-500">Jenis Website</label>
-                <p className="text-gray-900">{order.website_type}</p>
+                <p className="text-gray-900">{order.websiteType}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-500">Kebutuhan</label>
@@ -256,7 +271,7 @@ export default function OrderDetailPage() {
                       </label>
                     </div>
                   </div>
-                  {order.payment_proof_url && (
+                  {order.paymentProofUrl && (
                     <div className="text-center py-2">
                       <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-2" />
                       <p className="text-green-600 font-medium">Bukti pembayaran telah diupload</p>
@@ -271,7 +286,7 @@ export default function OrderDetailPage() {
           {/* Project Details */}
           {(order.status === 'confirmed' || order.status === 'in_progress' || order.status === 'completed') && (
             <>
-              {order.repo_url && (
+              {order.repoUrl && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Repository GitHub</CardTitle>
@@ -281,7 +296,7 @@ export default function OrderDetailPage() {
                   </CardHeader>
                   <CardContent>
                     <a
-                      href={order.repo_url}
+                      href={order.repoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center text-primary-600 hover:text-primary-700"
@@ -294,7 +309,7 @@ export default function OrderDetailPage() {
                 </Card>
               )}
 
-              {order.demo_url && (
+              {order.demoUrl && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Demo Website</CardTitle>
@@ -304,7 +319,7 @@ export default function OrderDetailPage() {
                   </CardHeader>
                   <CardContent>
                     <a
-                      href={order.demo_url}
+                      href={order.demoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center text-primary-600 hover:text-primary-700"
@@ -316,7 +331,7 @@ export default function OrderDetailPage() {
                 </Card>
               )}
 
-              {order.file_structure && (
+              {order.fileStructure && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center">
@@ -328,7 +343,7 @@ export default function OrderDetailPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {renderFileStructure(order.file_structure)}
+                    {renderFileStructure(order.fileStructure)}
                   </CardContent>
                 </Card>
               )}

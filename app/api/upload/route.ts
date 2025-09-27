@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import clientPromise from '@/lib/mongodb'
+import { ObjectId } from 'mongodb'
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,12 +23,12 @@ export async function POST(request: NextRequest) {
     const db = client.db('website-service')
     
     await db.collection('orders').updateOne(
-      { _id: orderId },
-      { 
-        $set: { 
+      { _id: new ObjectId(orderId) },
+      {
+        $set: {
           paymentProofUrl: filePath,
           updatedAt: new Date()
-        } 
+        }
       }
     )
 

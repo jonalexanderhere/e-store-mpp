@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import clientPromise from '@/lib/mongodb'
+import { ObjectId } from 'mongodb'
 
 export async function GET(
   request: NextRequest,
@@ -9,7 +10,7 @@ export async function GET(
     const client = await clientPromise
     const db = client.db('website-service')
     
-    const order = await db.collection('orders').findOne({ _id: params.id })
+    const order = await db.collection('orders').findOne({ _id: new ObjectId(params.id) })
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
@@ -40,7 +41,7 @@ export async function PUT(
     if (notes) updateData.notes = notes
 
     const result = await db.collection('orders').updateOne(
-      { _id: params.id },
+      { _id: new ObjectId(params.id) },
       { $set: updateData }
     )
 
@@ -48,7 +49,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    const updatedOrder = await db.collection('orders').findOne({ _id: params.id })
+    const updatedOrder = await db.collection('orders').findOne({ _id: new ObjectId(params.id) })
 
     return NextResponse.json({ order: updatedOrder })
   } catch (error: any) {

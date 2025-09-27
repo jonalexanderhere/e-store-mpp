@@ -43,22 +43,16 @@ export default function ProjectDetailPage() {
         }
         setUser(currentUser)
 
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('id', params.id)
-          .eq('user_id', currentUser.id)
-          .single()
-
-        if (error) {
-          if (error.code === 'PGRST116') {
-            router.push('/dashboard')
-            return
-          }
-          throw error
+        // Fetch order from MongoDB
+        const response = await fetch(`/api/orders/${params.id}`)
+        const data = await response.json()
+        
+        if (data.order) {
+          setProject(data.order)
+        } else {
+          console.error('Error fetching order:', data.error)
+          router.push('/dashboard')
         }
-
-        setProject(data)
       } catch (error: any) {
         console.error('Error fetching project:', error)
         router.push('/dashboard')

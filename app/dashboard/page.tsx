@@ -12,6 +12,22 @@ import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 
+interface Order {
+  _id: string
+  userId: string
+  customerName: string
+  customerEmail: string
+  websiteType: string
+  requirements: string
+  status: 'pending' | 'confirmed' | 'in_progress' | 'completed'
+  paymentProofUrl?: string
+  repoUrl?: string
+  demoUrl?: string
+  fileStructure?: string
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null)
@@ -29,15 +45,15 @@ export default function DashboardPage() {
         }
         setUser(currentUser)
 
-        // Fetch orders
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('user_id', currentUser.id)
-          .order('created_at', { ascending: false })
+        // Fetch orders from MongoDB
+        const response = await fetch('/api/orders')
+        const data = await response.json()
 
-        if (error) throw error
-        setOrders(data || [])
+        if (data.success) {
+          setOrders(data.orders || [])
+        } else {
+          console.error('Error fetching orders:', data.error)
+        }
       } catch (error) {
         console.error('Error fetching data:', error)
       } finally {
@@ -126,32 +142,32 @@ export default function DashboardPage() {
               ) : (
                 <div className="space-y-4">
                   {orders.map((order) => (
-                    <div key={order.id} className="border rounded-lg p-4">
+                    <div key={order._id} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                           {getStatusIcon(order.status)}
                           <div>
                             <h3 className="font-medium text-gray-900">
-                              {order.website_type}
+                              {order.websiteType}
                             </h3>
                             <p className="text-sm text-gray-500">
-                              {order.customer_name} • {order.customer_email}
+                              {order.customerName} • {order.customerEmail}
                             </p>
                             <p className="text-sm text-gray-500">
-                              Dibuat: {new Date(order.created_at).toLocaleDateString('id-ID')}
+                              Dibuat: {new Date(order.createdAt).toLocaleDateString('id-ID')}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-4">
                           {getStatusBadge(order.status)}
-                        <Link href={`/dashboard/orders/${order.id}`}>
+                        <Link href={`/dashboard/orders/${order._id}`}>
                           <Button variant="outline" size="sm">
                             <Eye className="h-4 w-4 mr-2" />
                             Detail
                           </Button>
                         </Link>
                         {order.status === 'completed' && (
-                          <Link href={`/dashboard/projects/${order.id}`}>
+                          <Link href={`/dashboard/projects/${order._id}`}>
                             <Button size="sm" className="bg-green-600 hover:bg-green-700">
                               <CheckCircle className="h-4 w-4 mr-2" />
                               Lihat Project
