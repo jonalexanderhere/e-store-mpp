@@ -1,6 +1,20 @@
-import { MongoClient } from 'mongodb'
+import { MongoClient, MongoClientOptions } from 'mongodb'
 
 const uri = process.env.MONGODB_URI || "mongodb+srv://Vercel-Admin-atlas-lightBlue-book:n6qGV4qMOtt3NI9U@atlas-lightblue-book.mfbxilu.mongodb.net/?retryWrites=true&w=majority"
+
+// MongoDB connection options for better SSL/TLS handling
+const options: MongoClientOptions = {
+  maxPoolSize: 10,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  connectTimeoutMS: 10000,
+  heartbeatFrequencyMS: 10000,
+  maxIdleTimeMS: 30000,
+  retryReads: true,
+  retryWrites: true,
+  compressors: ['zlib'],
+  zlibCompressionLevel: 6
+}
 
 let client: MongoClient
 let clientPromise: Promise<MongoClient>
@@ -13,13 +27,13 @@ if (process.env.NODE_ENV === 'development') {
   }
 
   if (!globalWithMongo._mongoClientPromise) {
-    client = new MongoClient(uri)
+    client = new MongoClient(uri, options)
     globalWithMongo._mongoClientPromise = client.connect()
   }
   clientPromise = globalWithMongo._mongoClientPromise
 } else {
   // In production mode, it's best to not use a global variable.
-  client = new MongoClient(uri)
+  client = new MongoClient(uri, options)
   clientPromise = client.connect()
 }
 

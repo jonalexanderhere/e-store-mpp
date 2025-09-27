@@ -53,7 +53,7 @@ export default function NotificationsPage() {
     } finally {
       setLoading(false)
     }
-  }, [user?.id])
+  }, [])
 
   useEffect(() => {
     const getUser = async () => {
